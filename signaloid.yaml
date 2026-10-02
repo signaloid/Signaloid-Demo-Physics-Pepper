@@ -1,0 +1,20 @@
+MinimumCore:
+      Class: C0Pro
+      Microarchitecture: Jupiter
+      CorrelationTracking: Disable
+      MemorySize: 8388608
+      Precision: 64
+
+TraceVariables:
+    - File: "pepper.cpp"
+      LineNumber: 43
+      Expression: "outputVariables[0]"
+
+BenchmarkingVariables:
+    - VariableName: outputVariables[0]
+      VariableDescription: gg -> gg cross section (pb)
+      OutputObject: Scalar
+      CommandLineArguments: -S 0
+
+BenchmarkingAllOutputs:
+    - CommandLineArguments: -S 0
