@@ -14,7 +14,6 @@
 #	Targets:
 #	  local-build - Build for native execution with the UxHw compat layer
 #	  local-run   - Build and run one distributional pass
-#	  local-mc    - Build and run the Monte Carlo engine
 #	  clean       - Remove build artifacts
 #
 
@@ -105,17 +104,12 @@ $(BINARY): $(ALL_OBJ)
 # Targets
 # ──────────────────────────────────────────────
 
-MC_ITERATIONS ?= 1000000
-
-.PHONY: local-build local-run local-mc clean
+.PHONY: local-build local-run clean
 
 local-build: $(BINARY)
 
 local-run: local-build
 	./$(BINARY)
-
-local-mc: local-build
-	./$(BINARY) -S 0 -M $(MC_ITERATIONS) -b
 
 clean:
 	rm -f $(ALL_OBJ) $(BINARY)
