@@ -2,7 +2,7 @@
 
 This directory holds the demo's source files. Build instructions live in the
 [top-level README](../README.md). The entrypoint for both native and SCCE
-builds is the top-level `Makefile` (`local-build`, `local-run`, `local-mc`,
+builds is the top-level `Makefile` (`local-build`, `local-run`,
 `scce-build`, `scce-run`, `clean`).
 
 ## Demo sources

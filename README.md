@@ -10,7 +10,7 @@ closed-form matrix element for the process, the CT18NLO parton distribution
 functions, and the t-channel phase-space mapping of
 [arXiv:2302.10449](https://arxiv.org/abs/2302.10449). The application is a C++
 port of the MCnet Schools Stirling 2025 Python tutorial, structured to fit
-within the [Signaloid UxHw benchmarking template](https://github.com/signaloid),
+within the [Signaloid UxHw benchmarking template](https://github.com/signaloid/Signaloid-Demo-Benchmarking-C-Template.git),
 so that traditional Monte Carlo sampling and Signaloid's single-pass
 uncertainty tracking can be compared directly.
 
@@ -74,7 +74,6 @@ Intel (`/usr/local`), so macOS needs no further configuration.
 ```bash
 make local-build                      # produces ./demo-native-mc
 make local-run                        # one distributional pass through the UxHw compatibility layer
-make local-mc                         # Monte Carlo, 1,000,000 iterations, benchmarking output
 
 ./demo-native-mc -S 0 -M 1000000 -T   # Monte Carlo, and print the kernel CPU time
 ./demo-native-mc -S 0 -j              # JSON output
