@@ -37,6 +37,10 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef NO_OS_AVAILABLE
+ #include "pepper-no-os-inputs.h"
+#endif
+
 #define kMaxLine        4096
 #define kMaxKnots       256
 #define kMaxAlphaSKnots 64
@@ -295,6 +299,50 @@ parseAlphaSFromInfo(PepperPDF * pdf, const char * infoPath)
 	return (foundQs && foundVals) ? 0 : -1;
 }
 
+#ifdef NO_OS_AVAILABLE
+/*
+ *	Fill `pdf` from the compiled-in grid in `pepper-no-os-inputs.h`
+ *	instead of reading the .dat and .info files. Returns 0 on success.
+ */
+static int
+loadEmbeddedGrid(PepperPDF * pdf)
+{
+	pdf->nX         = kPepperEmbeddedNumberOfX;
+	pdf->nQ2        = kPepperEmbeddedNumberOfQ;
+	pdf->nAlphaS    = kPepperEmbeddedNumberOfAlphaS;
+
+	for (size_t ii = 0; ii < pdf->nX; ii++)
+	{
+		pdf->xs[ii]     = kPepperEmbeddedXs[ii];
+		pdf->logxs[ii]  = log(kPepperEmbeddedXs[ii]);
+	}
+
+	for (size_t ii = 0; ii < pdf->nQ2; ii++)
+	{
+		pdf->q2s[ii]    = kPepperEmbeddedQs[ii] * kPepperEmbeddedQs[ii];
+		pdf->logq2s[ii] = log(pdf->q2s[ii]);
+	}
+
+	for (size_t ii = 0; ii < pdf->nAlphaS; ii++)
+	{
+		pdf->asQ[ii]        = kPepperEmbeddedAlphaSQs[ii];
+		pdf->asVal[ii]      = kPepperEmbeddedAlphaSVals[ii];
+		pdf->asLogQ2[ii]    = log(kPepperEmbeddedAlphaSQs[ii] * kPepperEmbeddedAlphaSQs[ii]);
+	}
+
+	pdf->xf = (double *) malloc(sizeof(kPepperEmbeddedGluon));
+
+	if (pdf->xf == NULL)
+	{
+		return -1;
+	}
+
+	memcpy(pdf->xf, kPepperEmbeddedGluon, sizeof(kPepperEmbeddedGluon));
+
+	return 0;
+}
+#endif
+
 PepperPDF *
 pepperPDFLoad(const char * dataDir, const char * setName, int member)
 {
@@ -308,6 +356,19 @@ pepperPDFLoad(const char * dataDir, const char * setName, int member)
 	{
 		return NULL;
 	}
+
+#ifdef NO_OS_AVAILABLE
+
+	if (loadEmbeddedGrid(pdf) != 0)
+	{
+		free(pdf);
+
+		return NULL;
+	}
+
+	return pdf;
+
+#endif
 
 	/*
 	 *	Load the .dat grid file.

@@ -61,10 +61,6 @@ BINARY = demo-native-mc
 PROJECT_CPP = \
 	src/pepper.cpp \
 	src/pepper-utilities.cpp \
-	src/pepper-vec4.cpp \
-	src/pepper-complexArith.cpp \
-	src/pepper-berendsGiele.cpp \
-	src/pepper-phaseSpace.cpp \
 	src/pepper-kernel.cpp \
 	src/pepper-uxhw.cpp \
 	src/pepper-monteCarlo.cpp

@@ -1,9 +1,8 @@
 # Source Code
 
 This directory holds the demo's source files. Build instructions live in the
-[top-level README](../README.md). The entrypoint for both native and SCCE
-builds is the top-level `Makefile` (`local-build`, `local-run`,
-`scce-build`, `scce-run`, `clean`).
+[top-level README](../README.md). The entrypoint for native
+builds is the top-level `Makefile` (`local-build`, `local-run`, `clean`).
 
 ## Demo sources
 
@@ -15,7 +14,9 @@ formats the output.
 ### `pepper-kernel.cpp/h`
 Shared LHAPDF initialization and cleanup, access to the PDF and `alpha_s`, and the
 `calculateOutputUxHw` / `calculateOutputMonteCarlo` mode dispatch (contracting
-to the first moment or to the sample mean respectively).
+to the first moment or to the sample mean respectively). The header also holds
+the `OutputVariableIndex` enum. The kernels take plain values, not the
+command-line arguments.
 
 ### `pepper-uxhw.cpp/h`
 `generateXsPointUxHw`: the distributional cross-section kernel. PDF lookup,
@@ -28,22 +29,6 @@ moment.
 scalar arithmetic (`fmin`/`fmax`/`fabs`/step, direct PDF lookup), plus the Monte
 Carlo sampling loop.
 
-### `pepper-berendsGiele.cpp/h`
-Berends-Giele recursion for 4-gluon color-ordered amplitudes. Currently unused,
-because the kernels use the equivalent closed-form ME².
-
-### `pepper-phaseSpace.cpp/h`
-t-channel phase-space generator (arXiv:2302.10449). Currently unused, because
-phase space is inline in the kernels.
-
-### `pepper-complexArith.cpp/h`
-Complex numbers, `CVec4` (complex four-vectors), `WeylSpinor`, and `VT` (the
-sigma^mu contraction). The Weyl spinor uses a complex square root so that
-negative-energy momenta are handled correctly.
-
-### `pepper-vec4.cpp/h`
-Real four-vectors with the Lorentz metric (+,-,-,-).
-
 ### `pepper-lhapdfLite.c/h`
 Standalone C implementation of the LHAPDF grid reader, providing `xf(x, Q^2)`
 and `alpha_s(Q^2)` by log-bicubic and cubic interpolation using only
@@ -53,9 +38,8 @@ backend for both native and SCCE builds, called directly by
 
 ### `pepper-utilities.cpp/h`
 Utility methods for parsing, setting, and reporting the usage of demo-specific
-command-line arguments, along with the `OutputVariableIndex` enum. These methods
-call similar methods from `common.c` for handling command-line arguments common
-to all of our C/C++ demo applications.
+command-line arguments. These methods call similar methods from `common.c` for
+handling command-line arguments common to all of our C/C++ demo applications.
 
 ## Shared sources
 

@@ -12,7 +12,7 @@ functions, and the t-channel phase-space mapping of
 port of the MCnet Schools Stirling 2025 Python tutorial, structured to fit
 within the [Signaloid UxHw benchmarking template](https://github.com/signaloid/Signaloid-Demo-Benchmarking-C-Template.git),
 so that traditional Monte Carlo sampling and Signaloid's single-pass
-uncertainty tracking can be compared directly.
+distribution arithmetic can be compared directly.
 
 On Signaloid hardware, the phase-space variables are drawn as distributional
 values by `UxHwDoubleUniformDist(0, 1)`. Every downstream operation, covering
@@ -79,24 +79,29 @@ make local-run                        # one distributional pass through the UxHw
 ./demo-native-mc -S 0 -j              # JSON output
 ```
 
+The native build uses gcc by default. Clang is also supported. To build with clang, run
+```bash
+make local-build CC=clang CXX=clang++
+```
+
 The application reads the CT18NLO grid from `inputs/`, resolved relative to the
 working directory, so both `make` targets and a direct invocation from the
-repository root work without any environment setup. With `-b` the application
-writes `data.out`, whose first line is the kernel execution time in
+repository root work without any environment setup. In Monte Carlo mode the
+application writes `data.out`, whose first line is the kernel execution time in
 microseconds and whose second line is the output value.
-
 
 ### Command-line options
 
 ```
-  -S <index>       Select output, see the table below
-  -M <iterations>  Monte Carlo mode with the given iteration count
-  -T               Time the kernel and print the result
-  -b               Benchmarking output format
-  -j               JSON output
-  -o <file>        Write the output to a CSV file
-  -v               Verbose output
-  -h               Help
+Usage: Valid command-line arguments are:
+	[-i, --input <Path to input CSV file : str>] (Read inputs from file.)
+	[-o, --output <Path to output CSV file : str>] (Specify the output file.)
+	[-S, --select-output <output : int>] (Compute 0-indexed output, by default 0. Set to the number of outputs to compute all outputs.)
+	[-M, --multiple-executions <Number of executions : int (Default: 1)>] (Repeatedly execute kernel for benchmarking. Also enables timing.)
+	[-T, --time] (Timing mode: Times and prints the timing of the kernel execution.)
+	[-v, --verbose] (Verbose mode: Prints extra information about demo execution.)
+	[-j, --json] (Print output in JSON format.)
+	[-h, --help] (Display this help message.)
 ```
 
 
@@ -121,16 +126,7 @@ reports their mean.
 | `src/pepper-uxhw.cpp` | Distributional kernel, with each table lookup and gate wrapped in `UxHwDoublePropagateFunction` |
 | `src/pepper-monteCarlo.cpp` | Scalar kernel and the Monte Carlo sampling loop |
 | `src/pepper-lhapdfLite.c` | Self-contained C reader for the CT18NLO grid |
-| `src/pepper-complexArith.cpp` | Complex numbers, complex four-vectors, and Weyl spinors |
-| `src/pepper-vec4.cpp` | Real four-vectors with the Lorentz metric |
-| `src/pepper-berendsGiele.cpp` | Berends-Giele recursion for color-ordered amplitudes, currently unused |
-| `src/pepper-phaseSpace.cpp` | Standalone t-channel phase-space generator, currently unused |
 | `src/pepper-utilities.cpp` | Demo-specific argument handling and the output index enumeration |
-
-The recursion and the standalone phase-space generator are retained as a
-reference implementation. Both kernels instead use the equivalent closed-form
-matrix element and an inline phase-space map, which keeps the operation count
-low enough to propagate distributions through in a single pass.
 
 [`src/README.md`](src/README.md) describes each file in more detail.
 
@@ -194,18 +190,12 @@ The physics implemented here draws on the following works. Entries link to a
 canonical source, so nothing third-party is redistributed.
 [`docs/README.md`](docs/README.md) collects the same index in one place.
 
-- Berends, F.A. and Giele, W.T. (1988). "Recursive calculations for processes with n gluons." *Nuclear Physics B*, 306, 759-808.
-  [doi:10.1016/0550-3213(88)90442-7](https://doi.org/10.1016/0550-3213(88)90442-7)
-  Used in: `pepper-berendsGiele.cpp`.
 - Hou, T.-J. et al. (2021). "New CTEQ global analysis of quantum chromodynamics with high-precision data from the LHC." *Physical Review D*, 103, 014013.
   [arXiv:1912.10053](https://arxiv.org/abs/1912.10053)
   Used in: `pepper-lhapdfLite.c`, as the CT18NLO parton distribution set.
 - Buckley, A. et al. (2015). "LHAPDF6: parton density access in the LHC precision era." *European Physical Journal C*, 75, 132.
   [arXiv:1412.7420](https://arxiv.org/abs/1412.7420)
   Reference implementation that `pepper-lhapdfLite.c` was validated against.
-- Plätzer, S. and Sjödahl, M. (2023). "Sampling the phase space of hadron collider events."
-  [arXiv:2302.10449](https://arxiv.org/abs/2302.10449)
-  Used in: `pepper-phaseSpace.cpp`, for the t-channel phase-space mapping.
 
 ### Signaloid documentation
 - [Signaloid Developer Documentation](https://docs.signaloid.io)

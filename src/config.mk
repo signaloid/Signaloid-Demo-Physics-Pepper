@@ -1,10 +1,6 @@
 SOURCES =\
 	pepper.cpp\
 	pepper-utilities.cpp\
-	pepper-vec4.cpp\
-	pepper-complexArith.cpp\
-	pepper-berendsGiele.cpp\
-	pepper-phaseSpace.cpp\
 	pepper-kernel.cpp\
 	pepper-uxhw.cpp\
 	pepper-monteCarlo.cpp\

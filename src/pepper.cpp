@@ -36,11 +36,17 @@ extern "C"
 #include "common.h"
 }
 
+#ifdef NO_OS_AVAILABLE
+
+extern "C" void
+returnZeroNoOS(void);
+#endif
+
 int
 main(int argc, char * argv[])
 {
 	CommandLineArguments        arguments;
-	double                      outputVariables[kOutputVariableIndexMax];
+	double                      outputVariables[kOutputVariableIndexMax] = { 0 };
 	const char *                outputVariableNames[kOutputVariableIndexMax] = {
 		"crossSection",
 	};
@@ -48,7 +54,7 @@ main(int argc, char * argv[])
 		"gg -> gg cross section (pb)",
 	};
 	kOutputVariableTypeIndex    outputVariableTypes[kOutputVariableIndexMax] = {
-		[kOutputVariableIndexXs] = kOutputVariableTypeScalar,
+		kOutputVariableTypeScalar,
 	};
 	const char *                applicationDescription  = "Pepper: pp -> gg cross-section";
 	double *                    monteCarloOutputSamples = NULL;
@@ -59,7 +65,9 @@ main(int argc, char * argv[])
 	memset(&arguments, 0, sizeof(arguments));
 
 	/*
-	 *	Get command line arguments.
+	 *	Get command line arguments. In the no-OS build there is no command
+	 *	line, so this instead applies the hard-coded configuration in
+	 *	`setNoOSCommandLineArguments()`.
 	 */
 	if (getCommandLineArguments(argc, argv, &arguments) != kCommonConstantReturnTypeSuccess)
 	{
@@ -73,6 +81,13 @@ main(int argc, char * argv[])
 	 */
 	const char * dataPath;
 
+#ifdef NO_OS_AVAILABLE
+	/*
+	 *	The no-OS build uses the compiled-in grid, so the path is unused.
+	 */
+	dataPath = ".";
+#else
+
 	if (fileExists("CT18NLO/CT18NLO.info"))
 	{
 		dataPath = ".";
@@ -81,6 +96,7 @@ main(int argc, char * argv[])
 	{
 		dataPath = "inputs";
 	}
+#endif
 
 	initializeLHAPDF(dataPath);
 
@@ -95,7 +111,7 @@ main(int argc, char * argv[])
 	);
 
 	/*
-	 *	Start timing if timing is enabled or in benchmarking mode.
+	 *	Start timing if timing is enabled.
 	 */
 	if (arguments.common.isTimingEnabled)
 	{
@@ -105,22 +121,28 @@ main(int argc, char * argv[])
 	/*
 	 *	Dispatch to the mode-specific kernel.
 	 */
-	bool isSelectedOutputScalar =
-		(arguments.common.outputSelect != kOutputVariableIndexMax) &&
-		(outputVariableTypes[arguments.common.outputSelect] == kOutputVariableTypeScalar);
+	const bool isScalarOutputSelected = isSelectedOutputScalar(
+		&arguments.common,
+		outputVariableTypes,
+		kOutputVariableIndexMax
+	);
 
 	if (arguments.common.isMonteCarloMode)
 	{
-		calculateOutputMonteCarlo(&arguments, outputVariables, monteCarloOutputSamples);
+		calculateOutputMonteCarlo(
+			arguments.common.numberOfMonteCarloIterations,
+			outputVariables,
+			monteCarloOutputSamples
+		);
 
-		if (isSelectedOutputScalar)
+		if (isScalarOutputSelected)
 		{
 			monteCarloOutputSamples[0] = outputVariables[kOutputVariableIndexXs];
 		}
 	}
 	else
 	{
-		calculateOutputUxHw(&arguments, outputVariables, monteCarloOutputSamples);
+		calculateOutputUxHw(outputVariables, monteCarloOutputSamples);
 	}
 
 	/*
@@ -132,34 +154,28 @@ main(int argc, char * argv[])
 		cpuTimeUsedInSeconds = ((double) (end - start)) / CLOCKS_PER_SEC;
 	}
 
-	CommonCommandLineArguments printArguments = arguments.common;
-
-	if (arguments.common.isMonteCarloMode && isSelectedOutputScalar)
-	{
-		printArguments.isMonteCarloMode             = false;
-		printArguments.numberOfMonteCarloIterations = 1;
-	}
-
 	if (arguments.common.isOutputJSONMode)
 	{
 		printJSONFormattedOutput(
-			&printArguments,
+			&arguments.common,
 			monteCarloOutputSamples,
 			outputVariables,
 			outputVariableNames,
 			kOutputVariableIndexMax,
-			applicationDescription
+			applicationDescription,
+			outputVariableTypes
 		);
 	}
 	else
 	{
 		printHumanConsumableOutput(
-			&printArguments,
+			&arguments.common,
 			kOutputVariableIndexMax,
 			outputVariables,
 			outputVariableNames,
 			outputVariableDescriptions,
-			monteCarloOutputSamples
+			monteCarloOutputSamples,
+			outputVariableTypes
 		);
 	}
 
@@ -178,7 +194,7 @@ main(int argc, char * argv[])
 	 */
 	if (arguments.common.isMonteCarloMode)
 	{
-		size_t samplesToSave = isSelectedOutputScalar
+		size_t samplesToSave = isScalarOutputSelected
 		            ? 1
 		            : arguments.common.numberOfMonteCarloIterations;
 
@@ -215,6 +231,11 @@ main(int argc, char * argv[])
 	free(monteCarloOutputSamples);
 
 	cleanupLHAPDF();
+#ifdef NO_OS_AVAILABLE
+	returnZeroNoOS();
+#else
 
 	return EXIT_SUCCESS;
+
+#endif
 }

@@ -26,36 +26,12 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include "common.h"
+#include "pepper-kernel.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-/**
- *	@brief	No CSV input distributions are used in this application.
- */
-typedef enum
-{
-	kInputDistributionIndexMax = 0,
-} InputDistributionIndex;
-
-/**
- *	@brief	Output variable indices, selected with the `-S` flag.
- *
- *	    -S 0  kOutputVariableIndexXs : the integrated gg -> gg cross section
- *	                                   (a Scalar). In UxHw mode, the first
- *	                                   moment of the propagated
- *	                                   differential-cross-section
- *	                                   distribution. In Monte Carlo mode,
- *	                                   the mean of the per-event
- *	                                   differential cross sections.
- */
-typedef enum
-{
-	kOutputVariableIndexXs = 0,
-	kOutputVariableIndexMax,
-} OutputVariableIndex;
 
 typedef struct
 {
@@ -88,6 +64,34 @@ printUsage(void);
  */
 CommonConstantReturnType
 getCommandLineArguments(int argc, char * argv[], CommandLineArguments * arguments);
+
+#ifdef NO_OS_AVAILABLE
+
+/**
+ *	@brief	Set the hard-coded command-line arguments used by the no-OS build.
+ *
+ *		This is the single place to change the configuration that no-OS
+ *		runs use, since those runs cannot be given command-line arguments.
+ *		Fields not set here keep the values from
+ *		`setDefaultCommandLineArguments()`.
+ *
+ *	@param	arguments	: Pointer to struct to store arguments.
+ *	@return			: `kCommonConstantReturnTypeSuccess` if successful,
+ *				  else `kCommonConstantReturnTypeError`.
+ */
+CommonConstantReturnType
+setNoOSCommandLineArguments(CommandLineArguments * arguments);
+#endif
+
+/**
+ *	@brief	Set the default values for the command-line arguments.
+ *
+ *	@param	arguments	: Pointer to struct to store arguments.
+ *	@return			: `kCommonConstantReturnTypeSuccess` if successful,
+ *				  else `kCommonConstantReturnTypeError`.
+ */
+CommonConstantReturnType
+setDefaultCommandLineArguments(CommandLineArguments * arguments);
 
 #ifdef __cplusplus
 }

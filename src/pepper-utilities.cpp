@@ -46,16 +46,26 @@ printUsage(void)
 {
 	fprintf(stderr, "Pepper: pp -> gg cross-section with Signaloid UxHw distributional arithmetic\n");
 	fprintf(stderr, "\n");
-	printCommonUsage();
+	fprintf(stderr, "Usage: Valid command-line arguments are:\n");
+	fprintf(
+		stderr,
+		"\t[-i, --input <Path to input CSV file : str>] (Read inputs from file.)\n"
+		"\t[-o, --output <Path to output CSV file : str>] (Specify the output file.)\n"
+		"\t[-S, --select-output <output : int>] (Compute 0-indexed output, by default 0. "
+		"Set to the number of outputs to compute all outputs.)\n"
+		"\t[-M, --multiple-executions <Number of executions : int (Default: 1)>] "
+		"(Repeatedly execute kernel for benchmarking. Also enables timing.)\n"
+		"\t[-T, --time] (Timing mode: Times and prints the timing of the kernel execution.)\n"
+		"\t[-v, --verbose] (Verbose mode: Prints extra information about demo execution.)\n"
+		"\t[-j, --json] (Print output in JSON format.)\n"
+		"\t[-h, --help] (Display this help message.)\n"
+	);
 	fprintf(stderr, "\n");
 
 	return;
 }
 
-/**
- *	@brief	Set the default values for the command line arguments.
- */
-static CommonConstantReturnType
+CommonConstantReturnType
 setDefaultCommandLineArguments(CommandLineArguments * arguments)
 {
 	if (arguments == NULL)
@@ -75,9 +85,56 @@ setDefaultCommandLineArguments(CommandLineArguments * arguments)
 	return kCommonConstantReturnTypeSuccess;
 }
 
+#ifdef NO_OS_AVAILABLE
+CommonConstantReturnType
+setNoOSCommandLineArguments(CommandLineArguments * arguments)
+{
+	if (arguments == NULL)
+	{
+		fprintf(stderr, "Error: The provided pointer to arguments is NULL.\n");
+
+		return kCommonConstantReturnTypeError;
+	}
+
+	/*
+	 *	Start from the defaults so that every demo-specific field is
+	 *	initialized, then override the ones the no-OS build fixes. The
+	 *	`common` sub-struct is zeroed by this call, so it is set explicitly
+	 *	below.
+	 */
+	if (setDefaultCommandLineArguments(arguments) != kCommonConstantReturnTypeSuccess)
+	{
+		return kCommonConstantReturnTypeError;
+	}
+
+	arguments->common.numberOfMonteCarloIterations  = 1;
+	arguments->common.outputSelect                  = kOutputVariableIndexMax;
+	arguments->common.isTimingEnabled               = false;
+	arguments->common.isMonteCarloMode              = false;
+	arguments->common.isOutputJSONMode              = false;
+	arguments->common.isWriteToFileEnabled          = false;
+
+	return kCommonConstantReturnTypeSuccess;
+}
+#endif
+
 CommonConstantReturnType
 getCommandLineArguments(int argc, char * argv[], CommandLineArguments * arguments)
 {
+#ifdef NO_OS_AVAILABLE
+	/*
+	 *	The no-OS build has no command line to parse, so ignore `argc` and
+	 *	`argv` and use the hard-coded configuration instead.
+	 */
+	(void) argc;
+	(void) argv;
+
+	puts("Using hard coded command line arguments");
+
+	return setNoOSCommandLineArguments(arguments);
+
+#else
+
 	if (arguments == NULL)
 	{
 		fprintf(stderr, "Error: The provided pointer to arguments is NULL.\n");
@@ -120,13 +177,13 @@ getCommandLineArguments(int argc, char * argv[], CommandLineArguments * argument
 
 	/*
 	 *	When outputSelect == kOutputVariableIndexMax (all outputs),
-	 *	benchmarking mode and Monte Carlo mode are not supported.
+	 *	Monte Carlo mode is not supported.
 	 */
 	if (arguments->common.outputSelect == kOutputVariableIndexMax)
 	{
-		if (arguments->common.isBenchmarkingMode || arguments->common.isMonteCarloMode)
+		if (arguments->common.isMonteCarloMode)
 		{
-			fprintf(stderr, "Error: Please select a single output (-S) when in benchmarking or Monte Carlo mode.\n");
+			fprintf(stderr, "Error: Please select a single output (-S) when in Monte Carlo mode.\n");
 
 			return kCommonConstantReturnTypeError;
 		}
@@ -144,4 +201,6 @@ getCommandLineArguments(int argc, char * argv[], CommandLineArguments * argument
 	}
 
 	return kCommonConstantReturnTypeSuccess;
+
+#endif
 }

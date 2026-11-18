@@ -1,18 +1,11 @@
 # Reference Documents for the Pepper Cross-Section Demo
 
 This folder indexes the works cited in the demo source, and holds any assets
-the READMEs use. The index points at each work's canonical source rather than
+the README files use. The index points at each work's canonical source rather than
 redistributing it, so every entry below links to a DOI or an arXiv record.
 
 The top-level [README](../README.md) maps each reference to the file that
 uses it.
-
-## Matrix elements and phase space
-
-| Citation | Source |
-|---|---|
-| Berends, F.A. and Giele, W.T. (1988). "Recursive calculations for processes with n gluons." *Nuclear Physics B*, 306, 759-808. | [doi:10.1016/0550-3213(88)90442-7](https://doi.org/10.1016/0550-3213(88)90442-7) |
-| Plätzer, S. and Sjödahl, M. (2023). "Sampling the phase space of hadron collider events." | [arXiv:2302.10449](https://arxiv.org/abs/2302.10449) |
 
 ## Parton distribution functions
 
@@ -25,8 +18,6 @@ uses it.
 
 | File | References |
 |---|---|
-| `pepper-berendsGiele.cpp` | Berends and Giele (1988) |
-| `pepper-phaseSpace.cpp` | Plätzer and Sjödahl (2023) |
 | `pepper-lhapdfLite.c` | Hou et al. (2021), Buckley et al. (2015) |
 
 ## Upstream tutorial
