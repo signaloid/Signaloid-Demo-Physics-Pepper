@@ -116,12 +116,9 @@ pepperKernelAlphasMZ2(void)
 
 double
 calculateOutputUxHw(
-	CommandLineArguments *  arguments,
-	double *                outputVariables,
-	double *                monteCarloOutputSamples)
+	double *    outputVariables,
+	double *    monteCarloOutputSamples)
 {
-	(void) arguments;
-
 	/*
 	 *	dxs is the differential-cross-section distribution over the
 	 *	Uniform[0,1]^3 input cube. The full propagated joint on SCCE, a
@@ -151,11 +148,10 @@ calculateOutputUxHw(
 
 double
 calculateOutputMonteCarlo(
-	CommandLineArguments *  arguments,
-	double *                outputVariables,
-	double *                monteCarloOutputSamples)
+	size_t      numberOfMonteCarloIterations,
+	double *    outputVariables,
+	double *    monteCarloOutputSamples)
 {
-	size_t          numberOfMonteCarloIterations = arguments->common.numberOfMonteCarloIterations;
 	MeanAndVariance meanAndVariance;
 
 	/*

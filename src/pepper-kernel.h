@@ -22,13 +22,30 @@
 
 #pragma once
 
-#include "pepper-utilities.h"
+#include <stddef.h>
 #include "pepper-lhapdfLite.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/**
+ *	@brief	Output variable indices, selected with the `-S` flag.
+ *
+ *	    -S 0  kOutputVariableIndexXs : the integrated gg -> gg cross section
+ *	                                   (a Scalar). In UxHw mode, the first
+ *	                                   moment of the propagated
+ *	                                   differential-cross-section
+ *	                                   distribution. In Monte Carlo mode,
+ *	                                   the mean of the per-event
+ *	                                   differential cross sections.
+ */
+typedef enum
+{
+	kOutputVariableIndexXs = 0,
+	kOutputVariableIndexMax,
+} OutputVariableIndex;
 
 /*
  *	Physics constants, shared by the UxHw and Monte Carlo cross-section
@@ -87,35 +104,33 @@ pepperKernelAlphasMZ2(void);
  *		`outputVariables[kOutputVariableIndexXs]` and
  *		`monteCarloOutputSamples[0]`.
  *
- *	@param	arguments		: Command-line arguments.
  *	@param	outputVariables		: Array of size `kOutputVariableIndexMax` to fill.
  *	@param	monteCarloOutputSamples	: Single-element array for the result.
  *	@return	double			: Returns the integrated cross section (pb).
  */
 double
 calculateOutputUxHw(
-	CommandLineArguments *  arguments,
-	double *                outputVariables,
-	double *                monteCarloOutputSamples);
+	double *    outputVariables,
+	double *    monteCarloOutputSamples);
 
 /**
  *	@brief	Monte Carlo kernel. Draws
- *		`arguments->common.numberOfMonteCarloIterations` independent
+ *		`numberOfMonteCarloIterations` independent
  *		phase-space samples into `monteCarloOutputSamples` with plain
  *		scalar arithmetic (no UxHw distributional API) and reports their
  *		mean as the integrated cross section. Writes the scalar into
  *		`outputVariables[kOutputVariableIndexXs]`.
  *
- *	@param	arguments		: Command-line arguments.
+ *	@param	numberOfMonteCarloIterations	: Number of Monte Carlo iterations to run.
  *	@param	outputVariables		: Array of size `kOutputVariableIndexMax` to fill.
  *	@param	monteCarloOutputSamples	: `numberOfMonteCarloIterations` doubles, filled with per-event dsigma.
  *	@return	double			: Returns the integrated cross section (pb).
  */
 double
 calculateOutputMonteCarlo(
-	CommandLineArguments *  arguments,
-	double *                outputVariables,
-	double *                monteCarloOutputSamples);
+	size_t      numberOfMonteCarloIterations,
+	double *    outputVariables,
+	double *    monteCarloOutputSamples);
 
 #ifdef __cplusplus
 }

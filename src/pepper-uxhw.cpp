@@ -49,7 +49,6 @@ extern "C"
 #include "pepper-kernel.h"
 #include "pepper-uxhw.h"
 #include "pepper-lhapdfLite.h"
-#include "pepper-utilities.h"
 }
 
 /*

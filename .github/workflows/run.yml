@@ -9,10 +9,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
-        submodules: recursive
+        persist-credentials: false
 
     - name: Check common and compat submodules up to date
       run: |
+        git submodule update --init --recursive
         git clean -fdx
         git submodule foreach --recursive git clean -fdx
         git submodule foreach 'case "$sm_path" in submodules/common|submodules/compat) git fetch -fup origin "+refs/heads/*:refs/remotes/origin/*" ;; esac'
@@ -40,7 +41,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
       with:
-        submodules: true
+        persist-credentials: false
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init
 
     - name: Install dependencies
       run: |
